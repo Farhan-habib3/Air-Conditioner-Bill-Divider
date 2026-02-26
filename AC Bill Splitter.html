@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Bill Splitter | Pro Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #020617;
+            --card-bg: #0f172a;
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.15);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --danger: #ef4444;
+            --success: #10b981;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .card { 
+            background-color: var(--card-bg); 
+            padding: 2.5rem; 
+            border-radius: 24px; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.05); 
+            width: 100%; 
+            max-width: 450px; 
+            border: 1px solid #1e293b;
+        }
+
+        h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            letter-spacing: -0.025em;
+            color: var(--text-main);
+        }
+
+        /* Hero Summary Section */
+        .summary-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .summary-box { 
+            background: rgba(30, 41, 59, 0.5);
+            padding: 16px; 
+            border-radius: 16px; 
+            border: 1px solid #334155;
+            transition: transform 0.2s ease;
+        }
+
+        .summary-box.highlight {
+            border-color: var(--accent);
+            background: linear-gradient(145deg, rgba(56, 189, 248, 0.1), transparent);
+        }
+
+        .summary-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .summary-value {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        /* Inputs */
+        .input-group { margin-bottom: 16px; position: relative; }
+        
+        label { 
+            display: block; 
+            font-size: 0.8rem; 
+            color: var(--text-muted); 
+            margin-bottom: 6px; 
+            font-weight: 600; 
+        }
+
+        input[type="number"] { 
+            width: 100%; 
+            padding: 12px 16px; 
+            border-radius: 12px; 
+            border: 1px solid #334155; 
+            background: #020617; 
+            color: white; 
+            outline: none; 
+            transition: 0.3s; 
+            box-sizing: border-box;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        input:focus { 
+            border-color: var(--accent); 
+            box-shadow: 0 0 0 4px var(--accent-glow); 
+        }
+
+        input.invalid { border-color: var(--danger); background: #1a0b0b; }
+
+        /* Checkbox Styling */
+        .late-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: rgba(239, 68, 68, 0.05);
+            border-radius: 12px;
+            margin: 20px 0;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: 0.2s;
+        }
+
+        .late-wrapper:hover { background: rgba(239, 68, 68, 0.1); }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--danger);
+            cursor: pointer;
+        }
+
+        /* Details List */
+        .details { margin-top: 24px; }
+        
+        .detail-row { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 10px 0; 
+            font-size: 0.85rem; 
+            color: var(--text-muted); 
+            border-bottom: 1px solid #1e293b; 
+            position: relative;
+        }
+
+        .grand-total {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 2px solid var(--accent);
+            color: var(--accent);
+            font-weight: 800;
+            font-size: 1.1rem;
+        }
+
+        /* Tooltip & Icons */
+        .help-icon { 
+            background: #334155; 
+            border-radius: 6px; 
+            width: 18px; 
+            height: 18px; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 10px; 
+            cursor: help; 
+            margin-left: 6px; 
+            vertical-align: middle;
+        }
+
+        .tooltip { 
+            visibility: hidden; 
+            width: 220px; 
+            background: #1e293b; 
+            color: #fff; 
+            border-radius: 12px; 
+            padding: 12px; 
+            position: absolute; 
+            z-index: 50; 
+            bottom: 130%; 
+            right: 0; 
+            opacity: 0; 
+            transition: 0.3s; 
+            font-size: 0.75rem; 
+            border: 1px solid #334155;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+
+        .help-icon:hover .tooltip { visibility: visible; opacity: 1; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 5px; }
+        th { text-align: left; color: var(--accent); padding-bottom: 4px; border-bottom: 1px solid #334155; }
+        td { padding: 4px 0; border-bottom: 1px solid #334155; }
+
+        .error-msg { color: var(--danger); font-size: 0.7rem; margin-top: 6px; display: none; font-weight: 600; }
+
+        button { 
+            width: 100%; 
+            padding: 14px; 
+            background: var(--accent); 
+            color: #020617; 
+            border: none; 
+            border-radius: 12px; 
+            font-weight: 800; 
+            cursor: pointer; 
+            transition: 0.3s; 
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        button:hover { transform: translateY(-1px); filter: brightness(1.1); }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>AC Bill Splitter</h2>
+
+    <div class="summary-container">
+        <div class="summary-box highlight">
+            <span class="summary-label">Hrid Dibe <span class="help-icon">?<div class="tooltip" id="hridBreakdown">No data</div></span></span>
+            <div class="summary-value" id="resHrid">৳0.00</div>
+        </div>
+        <div class="summary-box">
+            <span class="summary-label">Amra Dibo</span>
+            <div class="summary-value" id="resAmra">৳0.00</div>
+        </div>
+    </div>
+
+    <div class="input-group">
+        <label>Total Units (Main Meter)</label>
+        <input type="number" id="totalUnits" value="500" oninput="calculate()">
+    </div>
+    <div class="input-group">
+        <label>Sub-Meter Units (Hrid)</label>
+        <input type="number" id="subUnits" value="100" oninput="calculate()">
+        <div id="subError" class="error-msg">⚠️ Invalid Value</div>
+    </div>
+    <div class="input-group">
+        <label>Sanctioned Load (kW)</label>
+        <input type="number" id="load" value="6" oninput="calculate()">
+    </div>
+
+    <label class="late-wrapper">
+        <input type="checkbox" id="isLate" onchange="calculate()"> 
+        <span style="font-size: 0.85rem; font-weight: 600;">Late Payment (+5% Surcharge)</span>
+    </label>
+
+    <div class="details">
+        <div class="detail-row">
+            <span>Energy Cost <span class="help-icon">?<div class="tooltip" id="mainSlabTooltip">...</div></span></span>
+            <span id="resEnergy">৳0.00</span>
+        </div>
+        <div class="detail-row"><span>Demand Charge</span> <span id="resDemand">৳0.00</span></div>
+        <div class="detail-row"><span>Meter Rent</span> <span id="resRent">৳20.00</span></div>
+        <div class="detail-row"><span>VAT (5%)</span> <span id="resVat">৳0.00</span></div>
+        <div class="detail-row" id="lateRow" style="display:none; color: var(--danger);"><span>Late Fee (5%)</span> <span id="resLate">৳0.00</span></div>
+        
+        <div class="detail-row grand-total">
+            <span>Grand Total</span> <span id="resGrand">৳0.00</span>
+        </div>
+    </div>
+
+    <button style="margin-top: 24px;" onclick="calculate()">Refresh System</button>
+</div>
+
+<script>
+// --- CORE CALCULATION (UNCHANGED) ---
+const slabs = [
+    { label: '0-75', limit: 75, rate: 5.26 },
+    { label: '76-200', limit: 125, rate: 7.20 },
+    { label: '201-300', limit: 100, rate: 7.59 },
+    { label: '301-400', limit: 100, rate: 8.02 },
+    { label: '401-600', limit: 200, rate: 12.67 },
+    { label: '600+', limit: Infinity, rate: 14.61 }
+];
+
+function resetResults() {
+    ["resHrid", "resAmra", "resEnergy", "resDemand", "resVat", "resGrand", "resLate"].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.innerText = "৳0.00";
+    });
+    document.getElementById('hridBreakdown').innerHTML = "Invalid units.";
+}
+
+function calculate() {
+    const tInput = document.getElementById('totalUnits');
+    const sInput = document.getElementById('subUnits');
+    const lInput = document.getElementById('load');
+    const subError = document.getElementById('subError');
+    
+    let totalUnits = parseFloat(tInput.value);
+    let subUnits = parseFloat(sInput.value);
+    let load = parseFloat(lInput.value);
+    const isLate = document.getElementById('isLate').checked;
+
+    let hasError = false;
+    [tInput, sInput, lInput].forEach(i => i.classList.remove('invalid'));
+    subError.style.display = 'none';
+
+    if (totalUnits < 0 || subUnits < 0 || load < 0 || isNaN(totalUnits) || isNaN(subUnits)) {
+        if(totalUnits < 0) tInput.classList.add('invalid');
+        if(subUnits < 0) sInput.classList.add('invalid');
+        if(load < 0) lInput.classList.add('invalid');
+        subError.innerText = "⚠️ No negative values!";
+        subError.style.display = 'block';
+        hasError = true;
+    } else if (subUnits > totalUnits) {
+        sInput.classList.add('invalid');
+        subError.innerText = "⚠️ Sub-meter > Main Meter!";
+        subError.style.display = 'block';
+        hasError = true;
+    }
+
+    if (hasError) { resetResults(); return; }
+
+    function getSlabData(units) {
+        let cost = 0, rem = units, breakdown = [];
+        for (let s of slabs) {
+            let take = Math.max(0, Math.min(rem, s.limit));
+            if (take > 0) {
+                cost += (take * s.rate);
+                breakdown.push({ label: s.label, units: take, cost: take * s.rate });
+            }
+            rem -= take;
+        }
+        return { cost, breakdown };
+    }
+
+    const mainData = getSlabData(totalUnits);
+    const demandCharge = load * 42;
+    const meterRent = 20;
+    const billBeforeVat = mainData.cost + demandCharge + meterRent;
+    const vat = billBeforeVat * 0.05;
+    const grandTotal = billBeforeVat + vat;
+    const lateFee = isLate ? grandTotal * 0.05 : 0;
+    const finalBill = grandTotal + lateFee;
+
+    const costWithoutHrid = getSlabData(totalUnits - subUnits).cost;
+    const hridEnergyOnly = mainData.cost - costWithoutHrid;
+    const hridVat = hridEnergyOnly * 0.05;
+    let hridFinal = (hridEnergyOnly + hridVat) * (isLate ? 1.05 : 1);
+
+    document.getElementById('resEnergy').innerText = '৳' + mainData.cost.toLocaleString(undefined, {minimumFractionDigits: 2});
+    document.getElementById('resDemand').innerText = '৳' + demandCharge.toFixed(2);
+    document.getElementById('resVat').innerText = '৳' + vat.toFixed(2);
+    document.getElementById('resGrand').innerText = '৳' + finalBill.toLocaleString(undefined, {minimumFractionDigits: 2});
+    document.getElementById('resHrid').innerText = '৳' + hridFinal.toLocaleString(undefined, {minimumFractionDigits: 2});
+    document.getElementById('resAmra').innerText = '৳' + (finalBill - hridFinal).toLocaleString(undefined, {minimumFractionDigits: 2});
+    document.getElementById('lateRow').style.display = isLate ? 'flex' : 'none';
+    document.getElementById('resLate').innerText = '৳' + lateFee.toFixed(2);
+
+    let mainHtml = `<table><tr><th>Slab</th><th>Unit</th><th>Cost</th></tr>`;
+    mainData.breakdown.forEach(b => mainHtml += `<tr><td>${b.label}</td><td>${b.units}</td><td>৳${b.cost.toFixed(1)}</td></tr>`);
+    document.getElementById('mainSlabTooltip').innerHTML = mainHtml + `</table>`;
+
+    document.getElementById('hridBreakdown').innerHTML = `
+        <strong style="color:#38bdf8">Hrid's Impact:</strong><br>
+        Energy: ৳${hridEnergyOnly.toFixed(2)}<br>
+        VAT: ৳${hridVat.toFixed(2)}<br>
+        ${isLate ? '<span style="color:#ef4444">Late Fee Included</span>' : ''}<br>
+        <small style="opacity:0.7">Paying for the top ${subUnits} units used.</small>
+    `;
+}
+calculate();
+</script>
+</body>
+</html>
