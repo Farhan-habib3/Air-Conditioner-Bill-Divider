@@ -177,7 +177,7 @@
 
         .tooltip { 
             visibility: hidden; 
-            width: 220px; 
+            width: 280px; /* Increased width to fit 4 columns comfortably */
             background: #1e293b; 
             color: #fff; 
             border-radius: 12px; 
@@ -271,7 +271,7 @@
 </div>
 
 <script>
-// --- CORE CALCULATION (UNCHANGED) ---
+// --- CORE CALCULATION ---
 const slabs = [
     { label: '0-75', limit: 75, rate: 5.26 },
     { label: '76-200', limit: 125, rate: 7.20 },
@@ -326,7 +326,8 @@ function calculate() {
             let take = Math.max(0, Math.min(rem, s.limit));
             if (take > 0) {
                 cost += (take * s.rate);
-                breakdown.push({ label: s.label, units: take, cost: take * s.rate });
+                // Added rate to the breakdown object here
+                breakdown.push({ label: s.label, units: take, rate: s.rate, cost: take * s.rate });
             }
             rem -= take;
         }
@@ -356,8 +357,9 @@ function calculate() {
     document.getElementById('lateRow').style.display = isLate ? 'flex' : 'none';
     document.getElementById('resLate').innerText = '৳' + lateFee.toFixed(2);
 
-    let mainHtml = `<table><tr><th>Slab</th><th>Unit</th><th>Cost</th></tr>`;
-    mainData.breakdown.forEach(b => mainHtml += `<tr><td>${b.label}</td><td>${b.units}</td><td>৳${b.cost.toFixed(1)}</td></tr>`);
+    // Updated mainHtml string and forEach loop to include the Rate column
+    let mainHtml = `<table><tr><th>Slab</th><th>Unit</th><th>Rate</th><th>Cost</th></tr>`;
+    mainData.breakdown.forEach(b => mainHtml += `<tr><td>${b.label}</td><td>${b.units}</td><td>৳${b.rate.toFixed(2)}</td><td>৳${b.cost.toFixed(1)}</td></tr>`);
     document.getElementById('mainSlabTooltip').innerHTML = mainHtml + `</table>`;
 
     document.getElementById('hridBreakdown').innerHTML = `
